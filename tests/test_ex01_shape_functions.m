@@ -3,7 +3,7 @@
 clear; clc;
 
 % Add exercises folder to path so MATLAB can find your function
-addpath('../solutions');
+addpath('../exercises');
 
 fprintf('Running Test Suite for Exercise 1...\n\n');
 
