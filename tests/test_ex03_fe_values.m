@@ -1,6 +1,6 @@
 % TEST_EX04_FEVALUES
 clear; clc;
-addpath('../solutions');
+addpath('../exercises');
 
 fprintf('Running Test Suite for Exercise 4 (Dynamic FEValues)...\n\n');
 tol = 1e-12;

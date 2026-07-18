@@ -1,6 +1,6 @@
 % TEST_EX05_TIMOSHENKO_ASSEMBLY
 clear; clc;
-addpath('../solutions');
+addpath('../exercises');
 
 fprintf('Running Test Suite for Exercise 5 (Timoshenko Assembly)...\n\n');
 tol = 1e-10;
