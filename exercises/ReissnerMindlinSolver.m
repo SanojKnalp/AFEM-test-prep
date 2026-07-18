@@ -110,8 +110,9 @@ classdef ReissnerMindlinSolver < handle
                     N_mat = obj.get_N_matrix(N);
                     
                     % Stiffness and load integration
-                    K_e = K_e + (B' * C * B) * JxW;
-                    F_e = F_e + (N_mat' * obj.q_load) * JxW;
+                    % enter the computation here
+                    K_e = 0;
+                    F_e = 0;
                 end
                 
                 % Global assembly
