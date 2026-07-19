@@ -32,11 +32,11 @@ classdef FEValues < handle
             if obj.dim == 1
                 % --- YOUR CODE HERE FOR 1D JACOBIAN ---
                 % 1. Get reference derivative dNdxi
-                [~,dN] = ex01_shape_functions(obj.degree, param_coords(1))
+                [~,dN] = ex01_shape_functions(obj.degree, param_coords(1));
                 % 2. Compute J = dNdxi * elem_coords
                 J = 0; 
                 for i = 1:1:(obj.degree+1)
-                    J = J+ dN(i)*obj.elem_coords(i)
+                    J = J+ dN(i)*obj.elem_coords(i);
                 end
                 
             elseif obj.dim == 2

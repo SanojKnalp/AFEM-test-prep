@@ -67,7 +67,7 @@ classdef TimoshenkoSolver < handle
             obj.F_global = zeros(obj.n_dofs, 1);
             
             n_elements = size(obj.mesh.elements, 1);
-            n_nodes_per_elem = obj.fe.n_nodes;
+            n_nodes_per_elem = obj.fe.degree + 1;
             
             [xi_q, w_q] = quadrature_1d(obj.fe.degree + 1);
             C = obj.get_C_matrix();
@@ -104,6 +104,56 @@ classdef TimoshenkoSolver < handle
                 obj.K_global(dof_indices, dof_indices) = obj.K_global(dof_indices, dof_indices) + K_e;
                 obj.F_global(dof_indices) = obj.F_global(dof_indices) + F_e;
             end
+        end
+
+        function u = solve_penalty(obj, penalty_value)
+            % SOLVE_PENALTY Solves the system using the penalty method.
+            % Enforces clamped BCs (u = 0) at DOF 1 and DOF 2.
+            
+            K = obj.K_global;
+            F = obj.F_global;
+            
+            % --- YOUR CODE HERE ---
+            % 1. Add the penalty_value to the diagonal entries of K for DOFs 1 and 2.
+            % 2. Solve the modified linear system using MATLAB's backslash operator (\).
+            
+            u = zeros(obj.n_dofs, 1);
+        end
+        
+        function u = solve_lagrange_multiplier(obj)
+            % SOLVE_LAGRANGE_MULTIPLIER Solves the system using Lagrange multipliers.
+            % Enforces clamped BCs (u = 0) at DOF 1 and DOF 2.
+            
+            K = obj.K_global;
+            F = obj.F_global;
+            n = obj.n_dofs;
+            
+            % --- YOUR CODE HERE ---
+            % 1. Create K_ext (size n+2 x n+2) and F_ext (size n+2 x 1).
+            % 2. Insert original K and F into the top-left of the extended matrices.
+            % 3. Add constraint coefficients (1.0) at the correct row/column 
+            %    intersections to enforce u(1) = 0 and u(2) = 0.
+            % 4. Solve the extended system.
+            % 5. Extract the first 'n' elements as the displacement vector 'u'.
+            
+            u = zeros(n, 1);
+        end
+        
+        function u = solve_direct(obj)
+            % SOLVE_DIRECT Solves by directly eliminating constrained DOFs.
+            % Enforces clamped BCs (u = 0) at DOF 1 and DOF 2.
+            
+            K = obj.K_global;
+            F = obj.F_global;
+            
+            % --- YOUR CODE HERE ---
+            % 1. Identify the free DOFs (indices 3 through n_dofs).
+            % 2. Extract the reduced stiffness matrix (K_reduced) and load vector (F_reduced).
+            % 3. Solve the reduced system for u_reduced.
+            % 4. Construct the full displacement vector 'u' by placing zeros at 
+            %    indices 1 and 2, and mapping u_reduced into the remaining slots.
+            
+            u = zeros(obj.n_dofs, 1);
         end
     end
 end
