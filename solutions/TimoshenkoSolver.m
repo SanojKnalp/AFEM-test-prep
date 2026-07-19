@@ -9,6 +9,7 @@ classdef TimoshenkoSolver < handle
         
         K_global        % Global stiffness matrix
         F_global        % Global load vector
+        u_global        % Global solution vector
         n_dofs          % Total degrees of freedom
         penalty_val     % penalty value for penalty BCs
     end
@@ -23,7 +24,7 @@ classdef TimoshenkoSolver < handle
             obj.A = A;
             obj.k_s = k_s; % This is your alpha
             obj.q_load = q_load;
-            obj.penalty_val = 1e12;
+            obj.penalty_val = 1e8;
             
             % 2 DOFs per node: [w, beta]
             obj.n_dofs = size(mesh.nodes, 1) * 2; 
@@ -118,7 +119,7 @@ classdef TimoshenkoSolver < handle
             end
         end
 
-        function u = solve_penalty(obj, penalty_value)
+        function solve_penalty(obj)
             % SOLVE_PENALTY Solves the system using the penalty method.
             % Enforces clamped BCs (u = 0) at DOF 1 and DOF 2.
             
@@ -131,11 +132,11 @@ classdef TimoshenkoSolver < handle
             K(2,2) = K(2,2) + obj.penalty_val;
             % 2. Solve the modified linear system using MATLAB's backslash operator (\).
             
-            u = zeros(obj.n_dofs, 1);
-            u = K\F;
+            obj.u_global = zeros(obj.n_dofs, 1);
+            obj.u_global = K\F;
         end
         
-        function u = solve_lagrange_multiplier(obj)
+        function solve_lagrange_multiplier(obj)
             % SOLVE_LAGRANGE_MULTIPLIER Solves the system using Lagrange multipliers.
             % Enforces clamped BCs (u = 0) at DOF 1 and DOF 2.
             
@@ -157,10 +158,10 @@ classdef TimoshenkoSolver < handle
             u_lagrange = K\F;
             % 5. Extract the first 'n' elements as the displacement vector 'u'.
             
-            u = u_lagrange(1:end-2);
+            obj.u_global = u_lagrange(1:end-2);
         end
         
-        function u = solve_direct(obj)
+        function solve_direct(obj)
             % SOLVE_DIRECT Solves by directly eliminating constrained DOFs.
             % Enforces clamped BCs (u = 0) at DOF 1 and DOF 2.
             
@@ -180,7 +181,45 @@ classdef TimoshenkoSolver < handle
             u_reduced = K\F;
             % 4. Construct the full displacement vector 'u' by placing zeros at 
             %    indices 1 and 2, and mapping u_reduced into the remaining slots.
-            u = [ 0; 0; u_reduced];
+            obj.u_global = [ 0; 0; u_reduced];
+        end
+
+        function Q_pts = evaluate_and_plot_shear_forces(obj,num_points)
+            % EVALUATE_AND_PLOT_SHEAR_FORCES Evaluates and plots the shear force 
+            % along the length of a Timoshenko beam.
+            
+            L = obj.mesh.nodes(end); % Assuming beam starts at x=0
+            x_vct = linspace(0, L, num_points);
+            Q_pts = zeros(num_points, 1);
+            
+            % Derived shear stiffness
+            aGA = obj.k_s * obj.G * obj.A;
+            
+            % --- YOUR CODE HERE ---
+            % 1. Loop over all points in x_vct.
+            % 2. For each point, find the corresponding element and its local 
+            %    parametric coordinate (xi).
+            % 3. Extract the element's nodal displacements from the global vector 'u'.
+            % 4. Compute the spatial derivatives (dw/dx) using the Jacobian (J).
+            % 5. Compute the shear strain gamma = dw/dx + beta.
+            % 6. Compute the shear force Q = aGA * gamma and store in Q_pts.
+            for i = 1:1:num_points
+                x_val = x_vct(i);
+                [el, xiParam] = obj.mesh.find_element_and_parametric_position(x_val);
+                [N, dN] = ex01_shape_functions(obj.fe.degree,xiParam);
+                beta = N(1)*obj.u_global(2*el-1)+N(2)*obj.u_global(2*el+1);
+                dw = dN(1)*obj.u_global(2*el)+dN(2)*obj.u_global(2*el+2);
+                Q_pts(i) = aGA*(dw + beta);
+            end
+            
+            
+            % Plotting the shear forces
+            figure;
+            plot(x_vct, Q_pts, '-o', 'LineWidth', 1.5);
+            title('Shear Force Distribution along Timoshenko Beam');
+            xlabel('Position x');
+            ylabel('Shear Force Q');
+            grid on;
         end
     end
 end

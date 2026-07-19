@@ -30,6 +30,44 @@ classdef FEMesh
             node_ids = obj.get_local_nodes(elem_id);
             elem_coords = obj.get_node_positions(node_ids);
         end
+
+        function [elem_id, xi] = find_element_and_parametric_position(obj, x_target)
+            % FIND_ELEMENT_AND_PARAMETRIC_POSITION Finds the element ID and local 
+            % parametric coordinate for a given physical position x_target.
+            % Note: Currently implemented for 1D meshes.
+            
+            if obj.dim ~= 1
+                error('This method is currently only implemented for 1D meshes.');
+            end
+            
+            n_elements = size(obj.elements, 1);
+            elem_id = -1;
+            xi = 0;
+            
+            for e = 1:n_elements
+                % Get physical coordinates of the element's nodes
+                coords = obj.get_element_coordinates(e);
+                x_min = min(coords);
+                x_max = max(coords);
+                
+                % Check if target is within this element (using a tiny tolerance 
+                % to catch floating point inaccuracies at element boundaries)
+                if x_target >= x_min - 1e-10 && x_target <= x_max + 1e-10
+                    elem_id = e;
+                    
+                    % Map the physical coordinate x to the standard 
+                    % parametric domain [-1, 1]
+                    xi = 2 * (x_target - x_min) / (x_max - x_min) - 1;
+                    
+                    % Break early since we found the element
+                    return; 
+                end
+            end
+            
+            if elem_id == -1
+                error('Target point x = %f is outside the mesh domain.', x_target);
+            end
+        end
     end
     
     methods (Static)

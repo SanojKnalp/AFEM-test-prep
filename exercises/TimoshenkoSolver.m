@@ -155,5 +155,35 @@ classdef TimoshenkoSolver < handle
             
             u = zeros(obj.n_dofs, 1);
         end
+
+        function Q_pts = evaluate_and_plot_shear_forces(num_points)
+            % EVALUATE_AND_PLOT_SHEAR_FORCES Evaluates and plots the shear force 
+            % along the length of a Timoshenko beam.
+            
+            L = obj.mesh.nodes(end); % Assuming beam starts at x=0
+            x_vct = linspace(0, L, num_points);
+            Q_pts = zeros(num_points, 1);
+            
+            % Derived shear stiffness
+            aGA = obj.k_s * obj.G * obj.A;
+            
+            % --- YOUR CODE HERE ---
+            % 1. Loop over all points in x_vct.
+            % 2. For each point, find the corresponding element and its local 
+            %    parametric coordinate (xi).
+            % 3. Extract the element's nodal displacements from the global vector 'u'.
+            % 4. Compute the spatial derivatives (dw/dx) using the Jacobian (J).
+            % 5. Compute the shear strain gamma = dw/dx + beta.
+            % 6. Compute the shear force Q = aGA * gamma and store in Q_pts.
+            
+            
+            % Plotting the shear forces
+            figure;
+            plot(x_vct, Q_pts, '-o', 'LineWidth', 1.5);
+            title('Shear Force Distribution along Timoshenko Beam');
+            xlabel('Position x');
+            ylabel('Shear Force Q');
+            grid on;
+        end
     end
 end
