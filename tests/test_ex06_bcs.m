@@ -1,6 +1,6 @@
 % TEST_EX07_BC_AND_SHEAR
 clear; clc;
-addpath('../solutions');
+addpath('../exercises');
 
 fprintf('Running Updated Test Suite (BC Solvers & Shear Forces)...\n\n');
 tol_zero = 1e-5;
